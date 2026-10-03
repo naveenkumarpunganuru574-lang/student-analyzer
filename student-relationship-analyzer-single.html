@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Student Relationship Analyzer</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f6f7fb;--card:#fff;--text:#172033;--muted:#697386;--border:#e3e7ef;--primary:#635bff;--primary2:#4f46e5;--light:#eeecff;--green:#10b981;--red:#ef4444;--orange:#f59e0b}
+body{font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.navbar{position:sticky;top:0;z-index:1000;min-height:82px;padding:12px 4%;display:flex;align-items:center;justify-content:space-between;gap:18px;background:#fff;border-bottom:1px solid #eceef3}
+.logo{display:flex;align-items:center;gap:10px}.logo-icon{width:44px;height:44px;border-radius:12px;background:var(--light);color:var(--primary);display:grid;place-items:center;font-size:26px;font-weight:900}.logo strong{font-size:14px;display:block}.logo small{font-size:10px;color:var(--muted)}
+nav{display:flex;align-items:center;justify-content:flex-end;gap:4px;flex-wrap:wrap}
+nav a{color:#596477;text-decoration:none;font-weight:800;padding:15px 17px;border-radius:17px;cursor:pointer;white-space:nowrap}
+nav a:hover,nav a.active{background:var(--light);color:var(--primary)}
+.page{display:none}.page.active{display:block}
+.hero{padding:65px 5%;background:radial-gradient(circle at 12% 20%,rgba(99,91,255,.14),transparent 28%),radial-gradient(circle at 88% 20%,rgba(16,185,129,.11),transparent 28%),#fff;border-bottom:1px solid var(--border)}
+.hero-inner{max-width:1200px;margin:auto}.badge{display:inline-block;padding:6px 12px;border-radius:999px;background:var(--light);color:var(--primary);font-size:11px;font-weight:900;letter-spacing:.08em}.hero h1{margin-top:15px;font-size:clamp(38px,6vw,68px);line-height:1;letter-spacing:-.045em}.hero h1 span{color:var(--primary)}.hero p{max-width:800px;margin-top:20px;color:var(--muted);font-size:17px}
+.container{width:min(1200px,92%);margin:35px auto 70px}.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:26px;margin-bottom:22px;box-shadow:0 10px 30px rgba(25,35,55,.06)}
+.heading{display:flex;align-items:center;gap:11px;margin-bottom:20px}.number{width:32px;height:32px;border-radius:9px;background:var(--light);color:var(--primary);display:grid;place-items:center;font-size:12px;font-weight:900}.heading h2{font-size:21px}.muted{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.stat{background:#fbfcff;border:1px solid var(--border);border-radius:15px;padding:20px}.stat b{font-size:30px;color:var(--primary);display:block}.stat span{font-size:13px;color:var(--muted)}
+.btn{border:0;border-radius:10px;padding:11px 16px;background:var(--primary);color:#fff;font-weight:800;cursor:pointer}.btn:hover{background:var(--primary2)}.btn.secondary{background:#eef1f6;color:#465267}.btn.danger{background:#fff0f0;color:var(--red);border:1px solid #fecaca}
+input,select,textarea{width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--text);outline:none}label{display:block;font-size:12px;font-weight:800;color:#566174;margin-bottom:6px}
+.list{display:grid;gap:10px}.list-item{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px;border:1px solid var(--border);border-radius:12px;background:#fff}
+.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:11px;border-bottom:1px solid var(--border);text-align:left;font-size:13px}.table th{background:#f8fafc;color:#566174}
+.pill{display:inline-block;padding:4px 9px;border-radius:999px;background:#eef1f6;color:#566174;font-size:11px;font-weight:800}.pill.green{background:#eafaf4;color:#087a55}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.tab.active{background:var(--primary);color:#fff}
+.venn-wrap{background:#fbfcff;border:1px solid var(--border);border-radius:18px;padding:15px;overflow:auto}.venn-svg{width:100%;min-width:650px;height:520px;display:block}.circle{stroke-width:3;fill-opacity:.25}.a{fill:#7c6cff;stroke:#635bff}.b{fill:#34d399;stroke:#059669}.c{fill:#fbbf24;stroke:#d97706}
+.region-text{font-size:14px;font-weight:800;fill:#172033;text-anchor:middle}.set-label{font-size:18px;font-weight:900;text-anchor:middle}
+.operation-box{padding:18px;border-radius:14px;background:#f8f8ff;border:1px solid #dedcff;margin-top:15px}.operation-box h3{color:var(--primary);margin-bottom:5px}.formula{font-family:Consolas,monospace;font-weight:700}
+.help{padding:15px;border-left:4px solid var(--primary);background:#f7f6ff;border-radius:8px;color:#505a70}
+footer{background:#172033;color:#aeb7c7;text-align:center;padding:30px;font-size:12px}footer small{display:block;margin-top:5px;color:#778297}
+@media(max-width:1100px){.navbar{flex-direction:column;align-items:flex-start}nav{width:100%;justify-content:flex-start}.grid{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){nav{display:grid;grid-template-columns:repeat(2,1fr);width:100%}nav a{text-align:center;padding:11px 5px;font-size:12px}.grid,.grid2{grid-template-columns:1fr}.hero{padding:45px 5%}.hero h1{font-size:42px}.venn-svg{min-width:600px}}
+@media print{.navbar,footer,.btn,.tabs{display:none!important}.page{display:none}.page.active{display:block}.card{box-shadow:none}}
+</style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="logo">
+    <div class="logo-icon">∪</div>
+    <div><strong>Student Relationship Analyzer</strong><small>Discrete Mathematics Project</small></div>
+  </div>
+  <nav>
+    <a data-page="home">Home</a>
+    <a data-page="students">Students</a>
+    <a data-page="relationships">Relationships</a>
+    <a data-page="setrelations">Set Relations</a>
+    <a data-page="venn">Venn Diagram</a>
+    <a data-page="analyzer">Analyzer</a>
+    <a data-page="reports">Reports</a>
+    <a data-page="about">About</a>
+  </nav>
+</header>
+
+<!-- HOME -->
+<section id="home" class="page active">
+<section class="hero"><div class="hero-inner"><span class="badge">DISCRETE MATHEMATICS PROJECT</span><h1>Student Relationship <span>Analyzer</span></h1><p>A complete single-file application demonstrating student sets, relations, Venn diagrams, relation properties and reports.</p></div></section>
+<main class="container">
+<div class="grid">
+<div class="stat"><b id="homeStudents">0</b><span>Students</span></div>
+<div class="stat"><b id="homeRelations">0</b><span>Relationships</span></div>
+<div class="stat"><b id="homeSets">0</b><span>Student Sets</span></div>
+</div>
+<section class="card"><div class="heading"><span class="number">01</span><h2>Project Flow</h2></div><div class="grid2">
+<div><h3>Students → Sets</h3><p class="muted">Create student records and assign them to groups.</p></div>
+<div><h3>Relationships</h3><p class="muted">Create ordered pairs such as Ravi → Priya.</p></div>
+<div><h3>Venn Diagram</h3><p class="muted">Visualize actual student membership and set operations.</p></div>
+<div><h3>Relation Analyzer</h3><p class="muted">Check reflexive, symmetric and transitive properties.</p></div>
+</div></section>
+<section class="card"><div class="heading"><span class="number">02</span><h2>Quick Start</h2></div><div class="tabs">
+<button class="btn" data-page="students">Add Students</button>
+<button class="btn" data-page="relationships">Create Relationships</button>
+<button class="btn" data-page="setrelations">Create Sets</button>
+<button class="btn" data-page="venn">Open Venn Diagram</button>
+</div></section>
+</main></section>
+
+<!-- STUDENTS -->
+<section id="students" class="page">
+<section class="hero"><div class="hero-inner"><span class="badge">STUDENT MANAGEMENT</span><h1>Student <span>Records</span></h1><p>Add and manage students used by the whole application.</p></div></section>
+<main class="container">
+<section class="card"><div class="heading"><span class="number">01</span><h2>Add Student</h2></div>
+<div class="grid2"><div><label>Roll Number</label><input id="studentRoll" placeholder="73"></div><div><label>Student Name</label><input id="studentName" placeholder="Naveen"></div></div><br>
+<button class="btn" id="addStudent">Add Student</button> <button class="btn danger" id="clearStudents">Clear Students</button></section>
+<section class="card"><div class="heading"><span class="number">02</span><h2>Student List</h2></div><div class="table-wrap"><table class="table"><thead><tr><th>Roll No.</th><th>Name</th><th>Action</th></tr></thead><tbody id="studentRows"></tbody></table></div></section>
+</main></section>
+
+<!-- RELATIONSHIPS -->
+<section id="relationships" class="page">
+<section class="hero"><div class="hero-inner"><span class="badge">RELATION BUILDER</span><h1>Student <span>Relationships</span></h1><p>Create ordered-pair relationships. These are separate from set membership.</p></div></section>
+<main class="container">
+<section class="card"><div class="heading"><span class="number">01</span><h2>Create Relationship</h2></div>
+<div class="grid2"><div><label>From Student</label><select id="relFrom"></select></div><div><label>To Student</label><select id="relTo"></select></div></div><br><button class="btn" id="addRelation">Add Relationship</button></section>
+<section class="card"><div class="heading"><span class="number">02</span><h2>Current Relationships</h2></div><div id="relationList" class="list"></div></section>
+</main></section>
+
+<!-- SET RELATIONS -->
+<section id="setrelations" class="page">
+<section class="hero"><div class="hero-inner"><span class="badge">SET THEORY</span><h1>Set <span>Relations</span></h1><p>Create named groups and assign students to them. The same sets are used by the Venn Diagram.</p></div></section>
+<main class="container">
+<section class="card"><div class="heading"><span class="number">01</span><h2>Create / Update Set</h2></div>
+<div class="grid2"><div><label>Set Name</label><input id="setName" placeholder="Friends"></div><div><label>Students, comma separated</label><input id="setMembers" placeholder="Ravi, Priya, Naveen"></div></div><br><button class="btn" id="saveSet">Save Set</button></section>
+<section class="card"><div class="heading"><span class="number">02</span><h2>Available Sets</h2></div><div id="setList" class="list"></div></section>
+</main></section>
+
+<!-- VENN -->
+<section id="venn" class="page">
+<section class="hero"><div class="hero-inner"><span class="badge">SET VISUALIZATION</span><h1>Venn <span>Diagram Analyzer</span></h1><p>Use actual student data to visualize two-set and three-set membership, intersections, unions and differences.</p></div></section>
+<main class="container">
+<section class="card">
+<div class="heading"><span class="number">01</span><h2>Select Sets</h2></div>
+<div class="grid">
+<div><label>Set A</label><select id="vennA"></select></div>
+<div><label>Set B</label><select id="vennB"></select></div>
+<div><label>Set C</label><select id="vennC"></select></div>
+</div><br>
+<div class="tabs"><button class="btn tab active" id="twoSets">2 Sets</button><button class="btn secondary tab" id="threeSets">3 Sets</button></div>
+<div class="tabs" id="ops2"><button class="btn secondary" data-op="union">Union</button><button class="btn secondary" data-op="intersection">Intersection</button><button class="btn secondary" data-op="a-b">A − B</button><button class="btn secondary" data-op="b-a">B − A</button><button class="btn secondary" data-op="complement">Complement</button><button class="btn secondary" data-op="reset">Reset</button></div>
+<div class="tabs" id="ops3" style="display:none"><button class="btn secondary" data-op="union">A ∪ B ∪ C</button><button class="btn secondary" data-op="intersection">A ∩ B ∩ C</button><button class="btn secondary" data-op="reset">Reset</button></div>
+</section>
+
+<section class="card"><div class="heading"><span class="number">02</span><h2>Interactive Venn Diagram</h2></div>
+<div class="venn-wrap"><svg id="vennSvg" class="venn-svg" viewBox="0 0 800 520"></svg></div>
+<div id="vennResult" class="operation-box"></div>
+</section>
+
+<section class="card"><div class="heading"><span class="number">03</span><h2>Set Results</h2></div><div id="setResults"></div></section>
+
+<section class="card"><div class="heading"><span class="number">04</span><h2>Mathematical Explanation</h2></div><div id="mathExplanation" class="help"></div></section>
+
+<section class="card"><div class="heading"><span class="number">05</span><h2>Set vs Relation</h2></div>
+<div class="grid3">
+<div><h3>Set</h3><p class="muted">A collection of students.<br><span class="formula">A = {Ravi, Priya}</span></p></div>
+<div><h3>Relation</h3><p class="muted">A collection of ordered pairs.<br><span class="formula">R = {(Ravi,Priya)}</span></p></div>
+<div><h3>Venn Diagram</h3><p class="muted">A visual representation of set membership and set operations.</p></div>
+</div>
+</section>
+</main></section>
+
+<!-- ANALYZER -->
+<section id="analyzer" class="page">
+<section class="hero"><div class="hero-inner"><span class="badge">RELATION ANALYZER</span><h1>Relation <span>Analyzer</span></h1><p>Analyze the current ordered-pair relation.</p></div></section>
+<main class="container">
+<section class="card"><div class="heading"><span class="number">01</span><h2>Relation Matrix</h2></div><div class="table-wrap"><table class="table" id="matrix"></table></div></section>
+<div class="grid">
+<div class="stat"><b id="reflexive">-</b><span>Reflexive</span></div>
+<div class="stat"><b id="symmetric">-</b><span>Symmetric</span></div>
+<div class="stat"><b id="transitive">-</b><span>Transitive</span></div>
+</div>
+</main></section>
+
+<!-- REPORTS -->
+<section id="reports" class="page">
+<section class="hero"><div class="hero-inner"><span class="badge">PROJECT REPORT</span><h1>Current <span>Report</span></h1><p>The report uses the current browser data from all modules.</p></div></section>
+<main class="container">
+<div class="grid"><div class="stat"><b id="reportStudents">0</b><span>Students</span></div><div class="stat"><b id="reportRelations">0</b><span>Relationships</span></div><div class="stat"><b id="reportSets">0</b><span>Sets</span></div></div>
+<section class="card"><div class="heading"><span class="number">01</span><h2>Students</h2></div><div id="reportStudentList" class="list"></div></section>
+<section class="card"><div class="heading"><span class="number">02</span><h2>Relationships</h2></div><div id="reportRelationList" class="list"></div></section>
+<section class="card"><div class="heading"><span class="number">03</span><h2>Sets</h2></div><div id="reportSetList" class="list"></div></section>
+<section class="card"><div class="heading"><span class="number">04</span><h2>Venn Analysis</h2></div><div id="reportVenn"></div></section>
+<button class="btn" onclick="window.print()">🖨 Print Report</button>
+</main></section>
+
+<!-- ABOUT -->
+<section id="about" class="page">
+<section class="hero"><div class="hero-inner"><span class="badge">ABOUT THE PROJECT</span><h1>Set Theory + <span>Relations</span></h1><p>A student-friendly demonstration of Discrete Mathematics concepts using real browser data.</p></div></section>
+<main class="container">
+<section class="card"><div class="heading"><span class="number">01</span><h2>What the Project Demonstrates</h2></div><div class="grid">
+<div><h3>Set Theory</h3><p class="muted">Union, intersection, difference, complement and set membership.</p></div>
+<div><h3>Relations</h3><p class="muted">Ordered pairs, relation matrices and relation properties.</p></div>
+<div><h3>Visualization</h3><p class="muted">Dynamic SVG Venn diagrams with actual student names.</p></div>
+</div></section>
+<section class="card"><div class="heading"><span class="number">02</span><h2>Important Difference</h2></div><p class="muted"><b>Set:</b> collection of students. <b>Relation:</b> collection of ordered pairs. <b>Venn Diagram:</b> visual representation of sets and their intersections. The relation matrix represents ordered-pair relationships, while the Venn diagram represents set membership.</p></section>
+<section class="card"><div class="heading"><span class="number">03</span><h2>Project Flow</h2></div><p class="muted">Students → Create Student Sets → Assign Students → Create Relationships → Venn Diagram → Set Operations → Relation Matrix → Reflexive / Symmetric / Transitive Analysis → Final Report</p></section>
+</main></section>
+
+<footer>Student Relationship Analyzer<small>Everything is contained in this one HTML file • Data is stored in browser localStorage</small></footer>
+
+<script>
+/* ================= DATA ================= */
+const defaultStudents=[
+ {roll:"1",name:"Ravi"},{roll:"2",name:"Priya"},{roll:"3",name:"Naveen"},
+ {roll:"4",name:"Arun"},{roll:"5",name:"Anjali"},{roll:"6",name:"Rahul"}
+];
+const defaultSets={
+ "Friends":["Ravi","Priya","Naveen"],
+ "Project Partners":["Priya","Naveen","Arun"],
+ "Study Partners":["Priya","Naveen","Anjali"],
+ "Classmates":["Ravi","Priya","Naveen","Arun","Anjali","Rahul"],
+ "Same Course":["Ravi","Priya","Naveen","Arun","Anjali"],
+ "Same Division":["Ravi","Priya","Naveen","Rahul"]
+};
+function getStudents(){return JSON.parse(localStorage.getItem("sra_students")||"null")||defaultStudents}
+function getRelations(){return JSON.parse(localStorage.getItem("sra_relations")||"[]")}
+function getSets(){return JSON.parse(localStorage.getItem("sra_venn_sets")||"null")||defaultSets}
+function saveStudents(x){localStorage.setItem("sra_students",JSON.stringify(x))}
+function saveRelations(x){localStorage.setItem("sra_relations",JSON.stringify(x))}
+function saveSets(x){localStorage.setItem("sra_venn_sets",JSON.stringify(x))}
+function unique(a){return [...new Set(a)]}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+
+/* ================= NAVIGATION ================= */
+function showPage(id){
+ document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));
+ document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("active",a.dataset.page===id));
+ if(id==="home")updateHome();
+ if(id==="students")renderStudents();
+ if(id==="relationships")renderRelationships();
+ if(id==="setrelations")renderSets();
+ if(id==="venn")initVenn();
+ if(id==="analyzer")renderAnalyzer();
+ if(id==="reports")renderReports();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll("[data-page]").forEach(el=>el.addEventListener("click",()=>showPage(el.dataset.page)));
+
+/* ================= HOME ================= */
+function updateHome(){
+ document.getElementById("homeStudents").textContent=getStudents().length;
+ document.getElementById("homeRelations").textContent=getRelations().length;
+ document.getElementById("homeSets").textContent=Object.keys(getSets()).length;
+}
+
+/* ================= STUDENTS ================= */
+function renderStudents(){
+ const students=getStudents();
+ document.getElementById("studentRows").innerHTML=students.length?
+ students.map((s,i)=>`<tr><td>${esc(s.roll)}</td><td>${esc(s.name)}</td><td><button class="btn danger" onclick="deleteStudent(${i})">Delete</button></td></tr>`).join(""):
+ `<tr><td colspan="3">No students yet.</td></tr>`;
+}
+function deleteStudent(i){
+ const students=getStudents();const name=students[i]?.name;
+ if(!confirm("Delete "+name+"?"))return;
+ students.splice(i,1);saveStudents(students);
+ const rel=getRelations().filter(r=>r.from!==name&&r.to!==name);saveRelations(rel);
+ renderStudents();updateHome();renderRelationships();renderAnalyzer();
+}
+document.getElementById("addStudent").onclick=()=>{
+ const roll=document.getElementById("studentRoll").value.trim(),name=document.getElementById("studentName").value.trim();
+ if(!roll||!name)return alert("Enter roll number and student name.");
+ const students=getStudents();
+ if(students.some(s=>s.name.toLowerCase()===name.toLowerCase()||s.roll===roll))return alert("Roll number or student name already exists.");
+ students.push({roll,name});saveStudents(students);
+ document.getElementById("studentRoll").value="";document.getElementById("studentName").value="";
+ renderStudents();updateHome();
+};
+document.getElementById("clearStudents").onclick=()=>{
+ if(confirm("Clear all students and relationships?")){saveStudents([]);saveRelations([]);renderStudents();updateHome()}
+};
+
+/* ================= RELATIONSHIPS ================= */
+function fillRelationSelects(){
+ const opts=getStudents().map(s=>`<option value="${esc(s.name)}">${esc(s.name)}</option>`).join("");
+ document.getElementById("relFrom").innerHTML=opts;document.getElementById("relTo").innerHTML=opts;
+}
+function renderRelationships(){
+ fillRelationSelects();const rel=getRelations();
+ document.getElementById("relationList").innerHTML=rel.length?
+ rel.map((r,i)=>`<div class="list-item"><span><b>${esc(r.from)}</b> → <b>${esc(r.to)}</b></span><button class="btn danger" onclick="deleteRelation(${i})">Delete</button></div>`).join(""):
+ `<p class="muted">No relationships created yet.</p>`;
+}
+function deleteRelation(i){const r=getRelations();r.splice(i,1);saveRelations(r);renderRelationships();updateHome()}
+document.getElementById("addRelation").onclick=()=>{
+ const from=document.getElementById("relFrom").value,to=document.getElementById("relTo").value;
+ if(!from||!to)return;
+ const r=getRelations();
+ if(r.some(x=>x.from===from&&x.to===to))return alert("This relationship already exists.");
+ r.push({from,to});saveRelations(r);renderRelationships();updateHome();
+};
+
+/* ================= SET RELATIONS ================= */
+function renderSets(){
+ const sets=getSets();
+ document.getElementById("setList").innerHTML=Object.entries(sets).map(([k,v])=>
+ `<div class="list-item"><span><b>${esc(k)}</b><br><span class="muted">${v.map(esc).join(", ")||"No students"}</span></span><button class="btn danger" onclick="deleteSet(${JSON.stringify(k)})">Delete</button></div>`).join("");
+}
+function deleteSet(k){const s=getSets();delete s[k];saveSets(s);renderSets();updateHome()}
+document.getElementById("saveSet").onclick=()=>{
+ const name=document.getElementById("setName").value.trim();
+ const members=unique(document.getElementById("setMembers").value.split(",").map(x=>x.trim()).filter(Boolean));
+ if(!name)return alert("Enter a set name.");
+ const sets=getSets();sets[name]=members;saveSets(sets);
+ document.getElementById("setName").value="";document.getElementById("setMembers").value="";
+ renderSets();updateHome();
+};
+
+/* ================= VENN ================= */
+let vennMode=2,currentOp="reset";
+function setArray(name){return new Set(getSets()[name]||[])}
+function setUnion(...sets){return new Set([...sets.flatMap(s=>[...s])])}
+function setInter(...sets){if(!sets.length)return new Set();return new Set([...sets[0]].filter(x=>sets.every(s=>s.has(x))))}
+function setDiff(a,b){return new Set([...a].filter(x=>!b.has(x)))}
+function setComplement(a){const universe=new Set(getStudents().map(s=>s.name));return setDiff(universe,a)}
+function setText(s){return `{ ${[...s].join(", ")} }`}
+function populateVenn(){
+ const names=Object.keys(getSets());
+ const html=names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join("");
+ ["vennA","vennB","vennC"].forEach(id=>document.getElementById(id).innerHTML=html);
+ if(names.length){document.getElementById("vennA").selectedIndex=0;document.getElementById("vennB").selectedIndex=Math.min(1,names.length-1);document.getElementById("vennC").selectedIndex=Math.min(2,names.length-1)}
+}
+function initVenn(){
+ populateVenn();renderVenn();
+}
+function regionNames(){
+ const A=setArray(document.getElementById("vennA").value),B=setArray(document.getElementById("vennB").value),C=setArray(document.getElementById("vennC").value);
+ return {
+  A,B,C,
+  aOnly:setDiff(A,setUnion(B,C)),
+  bOnly:setDiff(B,setUnion(A,C)),
+  cOnly:setDiff(C,setUnion(A,B)),
+  ab:setDiff(setInter(A,B),C),
+  ac:setDiff(setInter(A,C),B),
+  bc:setDiff(setInter(B,C),A),
+  abc:setInter(A,B,C)
+ };
+}
+function renderVenn(){
+ const svg=document.getElementById("vennSvg"),R=regionNames();
+ const nA=document.getElementById("vennA").value||"Set A",nB=document.getElementById("vennB").value||"Set B",nC=document.getElementById("vennC").value||"Set C";
+ const names=(s)=>[...s].map(esc).join(", ")||"—";
+ let resultSet=new Set(),resultTitle="";
+ if(currentOp==="union")resultSet=vennMode===2?setUnion(R.A,R.B):setUnion(R.A,R.B,R.C),resultTitle=vennMode===2?"A ∪ B":"A ∪ B ∪ C";
+ else if(currentOp==="intersection")resultSet=vennMode===2?setInter(R.A,R.B):setInter(R.A,R.B,R.C),resultTitle=vennMode===2?"A ∩ B":"A ∩ B ∩ C";
+ else if(currentOp==="a-b")resultSet=setDiff(R.A,R.B),resultTitle="A − B";
+ else if(currentOp==="b-a")resultSet=setDiff(R.B,R.A),resultTitle="B − A";
+ else if(currentOp==="complement")resultSet=setComplement(R.A),resultTitle="Aᶜ";
+ else resultSet=vennMode===2?setUnion(R.A,R.B):setUnion(R.A,R.B,R.C),resultTitle="Current Union";
+ document.getElementById("vennResult").innerHTML=`<h3>${resultTitle}</h3><p class="formula">${setText(resultSet)}</p>`;
+ if(vennMode===2){
+  svg.innerHTML=`
+  <circle class="circle a" cx="315" cy="255" r="175"></circle>
+  <circle class="circle b" cx="485" cy="255" r="175"></circle>
+  <text class="set-label" x="220" y="65">${esc(nA)}</text>
+  <text class="set-label" x="580" y="65">${esc(nB)}</text>
+  <text class="region-text" x="245" y="255">${names(R.aOnly)}</text>
+  <text class="region-text" x="400" y="255">${names(R.ab)}</text>
+  <text class="region-text" x="555" y="255">${names(R.bOnly)}</text>`;
+  document.getElementById("setResults").innerHTML=`
+  <p><b>A = ${setText(R.A)}</b></p><p><b>B = ${setText(R.B)}</b></p><br>
+  <p>A only = ${setText(R.aOnly)}</p><p>A ∩ B = ${setText(setInter(R.A,R.B))}</p><p>B only = ${setText(R.bOnly)}</p>
+  <p><b>A ∪ B = ${setText(setUnion(R.A,R.B))}</b></p>
+  <p>A − B = ${setText(setDiff(R.A,R.B))}</p><p>B − A = ${setText(setDiff(R.B,R.A))}</p>`;
+  document.getElementById("mathExplanation").innerHTML=`The <b>intersection</b> A ∩ B contains students who belong to both sets. The <b>union</b> A ∪ B contains students who belong to at least one set. A − B contains students in A but not B.`;
+ }else{
+  svg.innerHTML=`
+  <circle class="circle a" cx="350" cy="235" r="160"></circle>
+  <circle class="circle b" cx="500" cy="235" r="160"></circle>
+  <circle class="circle c" cx="425" cy="355" r="160"></circle>
+  <text class="set-label" x="275" y="65">${esc(nA)}</text>
+  <text class="set-label" x="575" y="65">${esc(nB)}</text>
+  <text class="set-label" x="425" y="510">${esc(nC)}</text>
+  <text class="region-text" x="300" y="220">${names(R.aOnly)}</text>
+  <text class="region-text" x="550" y="220">${names(R.bOnly)}</text>
+  <text class="region-text" x="425" y="420">${names(R.cOnly)}</text>
+  <text class="region-text" x="425" y="245">${names(R.ab)}</text>
+  <text class="region-text" x="365" y="335">${names(R.ac)}</text>
+  <text class="region-text" x="485" y="335">${names(R.bc)}</text>
+  <text class="region-text" x="425" y="300">${names(R.abc)}</text>`;
+  document.getElementById("setResults").innerHTML=`
+  <p><b>A = ${setText(R.A)}</b></p><p><b>B = ${setText(R.B)}</b></p><p><b>C = ${setText(R.C)}</b></p><br>
+  <p>A only = ${setText(R.aOnly)}</p><p>B only = ${setText(R.bOnly)}</p><p>C only = ${setText(R.cOnly)}</p>
+  <p>A ∩ B = ${setText(setInter(R.A,R.B))}</p><p>A ∩ C = ${setText(setInter(R.A,R.C))}</p><p>B ∩ C = ${setText(setInter(R.B,R.C))}</p>
+  <p><b>A ∩ B ∩ C = ${setText(R.abc)}</b></p>`;
+  document.getElementById("mathExplanation").innerHTML=`A three-set Venn diagram separates students into seven membership regions: A only, B only, C only, A ∩ B, A ∩ C, B ∩ C and A ∩ B ∩ C. Each student's position is calculated from actual membership.`;
+ }
+}
+document.getElementById("twoSets").onclick=()=>{vennMode=2;document.getElementById("twoSets").className="btn tab active";document.getElementById("threeSets").className="btn secondary tab";document.getElementById("ops2").style.display="flex";document.getElementById("ops3").style.display="none";renderVenn()}
+document.getElementById("threeSets").onclick=()=>{vennMode=3;document.getElementById("threeSets").className="btn tab active";document.getElementById("twoSets").className="btn secondary tab";document.getElementById("ops2").style.display="none";document.getElementById("ops3").style.display="flex";renderVenn()}
+["vennA","vennB","vennC"].forEach(id=>document.getElementById(id).addEventListener("change",()=>{currentOp="reset";renderVenn()}));
+document.querySelectorAll("[data-op]").forEach(b=>b.addEventListener("click",()=>{currentOp=b.dataset.op;renderVenn()}));
+
+/* ================= ANALYZER ================= */
+function renderAnalyzer(){
+ const students=getStudents(),names=students.map(s=>s.name),rel=getRelations(),has=(a,b)=>rel.some(r=>r.from===a&&r.to===b);
+ document.getElementById("matrix").innerHTML=`<thead><tr><th>R</th>${names.map(n=>`<th>${esc(n)}</th>`).join("")}</tr></thead><tbody>`+
+ names.map(a=>`<tr><th>${esc(a)}</th>${names.map(b=>`<td>${has(a,b)?"1":"0"}</td>`).join("")}</tr>`).join("")+"</tbody>";
+ const reflexive=names.every(a=>has(a,a));
+ const symmetric=names.every(a=>names.every(b=>has(a,b)===has(b,a)));
+ const transitive=names.every(a=>names.every(b=>names.every(c=>!(has(a,b)&&has(b,c))||has(a,c))));
+ document.getElementById("reflexive").textContent=reflexive?"YES":"NO";
+ document.getElementById("symmetric").textContent=symmetric?"YES":"NO";
+ document.getElementById("transitive").textContent=transitive?"YES":"NO";
+}
+
+/* ================= REPORT ================= */
+function renderReports(){
+ const s=getStudents(),r=getRelations(),sets=getSets();
+ document.getElementById("reportStudents").textContent=s.length;document.getElementById("reportRelations").textContent=r.length;document.getElementById("reportSets").textContent=Object.keys(sets).length;
+ document.getElementById("reportStudentList").innerHTML=s.map(x=>`<div class="list-item"><span>${esc(x.name)}</span><span class="pill">Roll ${esc(x.roll)}</span></div>`).join("")||"<p class='muted'>No students.</p>";
+ document.getElementById("reportRelationList").innerHTML=r.map(x=>`<div class="list-item">${esc(x.from)} → ${esc(x.to)}</div>`).join("")||"<p class='muted'>No relationships.</p>";
+ document.getElementById("reportSetList").innerHTML=Object.entries(sets).map(([k,v])=>`<div class="list-item"><span><b>${esc(k)}</b><br><span class="muted">${v.map(esc).join(", ")}</span></span><span class="pill green">${v.length} members</span></div>`).join("");
+ const keys=Object.keys(sets);let reportV="";
+ if(keys.length>=2){const A=new Set(sets[keys[0]]),B=new Set(sets[keys[1]]);reportV=`<p><b>${esc(keys[0])}</b> ∩ <b>${esc(keys[1])}</b> = ${setText(setInter(A,B))}</p><p><b>${esc(keys[0])}</b> ∪ <b>${esc(keys[1])}</b> = ${setText(setUnion(A,B))}</p>`}
+ document.getElementById("reportVenn").innerHTML=reportV||"<p class='muted'>Create at least two sets to include Venn calculations.</p>";
+}
+
+/* initial */
+updateHome();
+</script>
+</body>
+</html>
